@@ -1,9 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.3.32929.385
+VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeReso", "CodeReso\CodeReso.csproj", "{4E59248B-9750-4F15-85D1-B672C6D1CCD6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeReso", "CodeReso\CodeReso.csproj", "{4E59248B-9750-4F15-85D1-B672C6D1CCD6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScriptingLanguage", "ScriptingLanguage\ScriptingLanguage.csproj", "{AF45F7CE-282B-4DA2-9FC0-0B45CC8ED48F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameEngine", "GameEngine\GameEngine.csproj", "{41956B1A-3C55-4985-940A-C75C90002441}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{4E59248B-9750-4F15-85D1-B672C6D1CCD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4E59248B-9750-4F15-85D1-B672C6D1CCD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4E59248B-9750-4F15-85D1-B672C6D1CCD6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF45F7CE-282B-4DA2-9FC0-0B45CC8ED48F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF45F7CE-282B-4DA2-9FC0-0B45CC8ED48F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF45F7CE-282B-4DA2-9FC0-0B45CC8ED48F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF45F7CE-282B-4DA2-9FC0-0B45CC8ED48F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{41956B1A-3C55-4985-940A-C75C90002441}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{41956B1A-3C55-4985-940A-C75C90002441}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{41956B1A-3C55-4985-940A-C75C90002441}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{41956B1A-3C55-4985-940A-C75C90002441}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
