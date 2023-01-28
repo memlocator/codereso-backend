@@ -4,5 +4,6 @@ namespace ScriptingLanguage
 {
     public class Class1
     {
+        
     }
 }

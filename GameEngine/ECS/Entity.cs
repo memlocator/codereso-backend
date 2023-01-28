@@ -1,4 +1,4 @@
-﻿namespace GameEngine;
+﻿namespace GameEngine.ECS;
 
 public class Entity
 {
