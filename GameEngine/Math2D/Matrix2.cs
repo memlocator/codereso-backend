@@ -4,14 +4,14 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace GameEngine.Math2D;
 public readonly struct Matrix2
 {
-    public readonly float[] Data = new float[9];
-    public Vector2 Right { get => new(this[0], this[1]); }
-    public Vector2 Up { get => new(this[3], this[4]); }
-    public Vector2 Translation { get => new(this[6], this[7], 1); }
+    public Vector2 Right { get; }
+    public Vector2 Up { get; }
+    public Vector2 Translation { get; }
     public Vector2 Scale2 { get => new(Right.Length, Up.Length); }
     public Vector2 Scale2Squared { get => new(Right.LengthSquared, Up.LengthSquared); }
     public float Rotation { get => GetRotation(); }
@@ -20,83 +20,54 @@ public readonly struct Matrix2
 
     public Matrix2()
     {
-        Data[0] = 1;
-        Data[4] = 1;
-        Data[8] = 1;
+        Right = new(1, 0, 0);
+        Up = new(0, 1, 0);
+        Translation = new(0, 0, 1);
     }
     public Matrix2(float[] data)
     {
         if (data.Length != 9 || data.Rank != 1)
             throw new RankException($"Attempted to create Matrix2 of rank {data.Rank} length {data.Length}. Expected rank 1, length 9.");
 
-        Data = data;
+        Right = new(data[0], data[1], data[2]);
+        Up = new(data[3], data[4], data[5]);
+        Translation = new(data[6], data[7], data[8]);
     }
     public Matrix2(Vector2 position)
     {
-        Data[0] = 1;
-        Data[4] = 1;
-
-        Data[6] = position.X;
-        Data[7] = position.Y;
-        Data[8] = 1;
+        Right = new(1, 0, 0);
+        Up = new(0, 1, 0);
+        Translation = new(position.X, position.Y, 1);
     }
     public Matrix2(Vector2 position, Vector2 right, Vector2 up, bool copyAllZs = false)
     {
-        Data[0] = right.X;
-        Data[1] = right.Y;
-
-        Data[3] = up.X;
-        Data[4] = up.Y;
-
-        Data[6] = position.X;
-        Data[7] = position.Y;
-        Data[8] = 1;
-
-        if (copyAllZs)
-        {
-            Data[2] = right.Z;
-            Data[5] = up.Z;
-            Data[8] = position.Z;
-        }
+        Right = new(right.X, right.Y, copyAllZs ? right.Z : 0);
+        Up = new(up.X, up.Y, copyAllZs ? up.Z : 0);
+        Translation = new(position.X, position.Y, copyAllZs ? position.Z : 1);
     }
     public Matrix2(Vector2 position, Vector2 scale)
     {
-        Data[0] = scale.X;
-        Data[4] = scale.Y;
-
-        Data[6] = position.X;
-        Data[7] = position.Y;
-        Data[8] = 1;
+        Right = new(scale.X, 0, 0);
+        Up = new(0, scale.Y, 0);
+        Translation = new(position.X, position.Y, 1);
     }
     public Matrix2(Vector2 position, float rotation)
     {
         float sin = MathF.Sin(rotation);
         float cos = MathF.Cos(rotation);
 
-        Data[0] = cos;
-        Data[1] = -sin;
-
-        Data[3] = sin;
-        Data[4] = cos;
-
-        Data[6] = position.X;
-        Data[7] = position.Y;
-        Data[8] = 1;
+        Right = new(cos, -sin, 0);
+        Up = new(sin, cos, 0);
+        Translation = new(position.X, position.Y, 1);
     }
     public Matrix2(Vector2 position, Vector2 scale, float rotation)
     {
         float sin = MathF.Sin(rotation);
         float cos = MathF.Cos(rotation);
 
-        Data[0] = scale.X * cos;
-        Data[1] = scale.X * -sin;
-
-        Data[3] = scale.Y * sin;
-        Data[4] = scale.Y * cos;
-
-        Data[6] = position.X;
-        Data[7] = position.Y;
-        Data[8] = 1;
+        Right = scale.X * new Vector2(cos, -sin, 0);
+        Up = scale.Y * new Vector2(sin, cos, 0);
+        Translation = new(position.X, position.Y, 1);
     }
 
     public bool IsIdentity(float epsilon = Utils.PreciseEpsilonF)
@@ -338,12 +309,18 @@ public readonly struct Matrix2
 
     public float this[int x, int y]
     {
-        get => this[IndexOf(x, y)];
+        get => y switch
+        {
+            0 => Right[x],
+            1 => Up[x],
+            2 => Translation[x],
+            _ => throw new IndexOutOfRangeException($"Attempt to index Matrix2 with index {x}, {y}")
+        };
     }
 
     public float this[int i]
     {
-        get => Data[i];
+        get => this[i % 3, i / 3];
     }
 
     public static int IndexOf(int x, int y)

@@ -18,8 +18,8 @@ public class Matrix2Tests
 
         for (int i = 0; i < 9; ++i)
         {
-            Assert.True(matrix1.Data[i] == data[i]);
-            Assert.True(matrix2.Data[i] == data[i]);
+            Assert.True(matrix1[i] == data[i]);
+            Assert.True(matrix2[i] == data[i]);
         }
 
         float[] data2 = new float[9] { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
