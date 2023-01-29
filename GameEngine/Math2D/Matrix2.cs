@@ -9,13 +9,13 @@ namespace GameEngine.Math2D;
 public readonly struct Matrix2
 {
     public readonly float[] Data = new float[9];
-    public Vector2 Right { get => new(Data[0], Data[1]); }
-    public Vector2 Up { get => new(Data[3], Data[4]); }
-    public Vector2 Translation { get => new(Data[6], Data[7], 1); }
+    public Vector2 Right { get => new(this[0], this[1]); }
+    public Vector2 Up { get => new(this[3], this[4]); }
+    public Vector2 Translation { get => new(this[6], this[7], 1); }
     public Vector2 Scale2 { get => new(Right.Length, Up.Length); }
     public Vector2 Scale2Squared { get => new(Right.LengthSquared, Up.LengthSquared); }
     public float Rotation { get => GetRotation(); }
-    public float Determinant  { get => Data[0] * Data[4] - Data[1] * Data[3]; }
+    public float Determinant  { get => this[0] * this[4] - this[1] * this[3]; }
     public Matrix2 Inverse { get => GetInverse(); }
 
     public Matrix2()
@@ -124,7 +124,7 @@ public readonly struct Matrix2
             int x = i % 3;
             int y = i / 3;
 
-            data[i] = Data[IndexOf(y, x)];
+            data[i] = this[IndexOf(y, x)];
         }
 
         return new(data);
@@ -190,12 +190,12 @@ public readonly struct Matrix2
 
     public Vector2 Row(int row)
     {
-        return new(Data[row], Data[row + 3], Data[row + 6]);
+        return new(this[row], this[row + 3], this[row + 6]);
     }
 
     public Vector2 Column(int column)
     {
-        return new(Data[3 * column], Data[1 + 3 * column], Data[2 + 3 * column]);
+        return new(this[3 * column], this[1 + 3 * column], this[2 + 3 * column]);
     }
 
     public static Matrix2 operator+(Matrix2 left, Matrix2 right)
@@ -204,7 +204,7 @@ public readonly struct Matrix2
 
         for (int i = 0; i < 9; ++i)
         {
-            data[i] = left.Data[i] + right.Data[i];
+            data[i] = left[i] + right[i];
         }
 
         return new(data);
@@ -216,7 +216,7 @@ public readonly struct Matrix2
 
         for (int i = 0; i < 9; ++i)
         {
-            data[i] = left.Data[i] + right.Data[i];
+            data[i] = left[i] + right[i];
         }
 
         return new(data);
@@ -228,7 +228,7 @@ public readonly struct Matrix2
 
         for (int i = 0; i < 9; ++i)
         {
-            data[i] = -matrix.Data[i];
+            data[i] = -matrix[i];
         }
 
         return new(data);
@@ -240,7 +240,7 @@ public readonly struct Matrix2
 
         for (int i = 0; i < 9; ++i)
         {
-            data[i] = -matrix.Data[i];
+            data[i] = -matrix[i];
         }
 
         return new(data);
@@ -287,7 +287,7 @@ public readonly struct Matrix2
     {
         for (int i = 0; i < 9; ++i)
         {
-            if (!Utils.IsFloatClose(Data[i], other.Data[i]))
+            if (!Utils.IsFloatClose(this[i], other[i]))
             {
                 return false;
             }
@@ -300,7 +300,7 @@ public readonly struct Matrix2
     {
         for (int i = 0; i < 9; ++i)
         {
-            if (!Utils.IsFloatClose(Data[i], other.Data[i], epsilon))
+            if (!Utils.IsFloatClose(this[i], other[i], epsilon))
             {
                 return false;
             }
@@ -325,7 +325,7 @@ public readonly struct Matrix2
 
         for (int i = 0; i < 9; ++i)
         {
-            hash = hash * 23 + Data[i].GetHashCode();
+            hash = hash * 23 + this[i].GetHashCode();
         }
 
         return hash;
@@ -333,12 +333,17 @@ public readonly struct Matrix2
 
     public override string ToString()
     {
-        return $"r:[ {Data[0]} {Data[1]} {Data[2]} ] u:[ {Data[3]} {Data[4]} {Data[5]} ] t:[ {Data[6]} {Data[7]} {Data[8]} ]";
+        return $"r:[ {this[0]} {this[1]} {this[2]} ] u:[ {this[3]} {this[4]} {this[5]} ] t:[ {this[6]} {this[7]} {this[8]} ]";
     }
 
     public float this[int x, int y]
     {
-        get => Data[IndexOf(x, y)];
+        get => this[IndexOf(x, y)];
+    }
+
+    public float this[int i]
+    {
+        get => Data[i];
     }
 
     public static int IndexOf(int x, int y)
