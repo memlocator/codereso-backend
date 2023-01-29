@@ -22,6 +22,31 @@ public class Utils
         return IsFloatZero(x - y, epsilon);
     }
 
+    public static float SafeDivide(float num, float den, float epsilon = PreciseEpsilonF, bool useOne = true)
+    {
+        if (!IsFloatZero(den, epsilon))
+        {
+            return num / den;
+        }
+
+        return useOne ? num : 0;
+    }
+
+    public static float WrapAngle(float angle)
+    {
+        while (angle > MathF.PI)
+        {
+            angle -= 2 * MathF.PI;
+        }
+
+        while (angle < -MathF.PI)
+        {
+            angle += 2 * MathF.PI;
+        }
+
+        return angle;
+    }
+
     public const double StrictEpsilonD = 1e-12d;
     public const double PreciseEpsilonD = 1e-8d;
     public const double LooseEpsilonD = 1e-4d;
@@ -35,9 +60,34 @@ public class Utils
     {
         return IsDoubleZero(x - y, epsilon);
     }
+
+    public static double SafeDivide(double num, double den, double epsilon = StrictEpsilonD, bool useOne = true)
+    {
+        if (!IsDoubleZero(den, epsilon))
+        {
+            return num / den;
+        }
+
+        return useOne ? num : 0;
+    }
+
+    public static double WrapAngle(double angle)
+    {
+        while (angle > Math.PI)
+        {
+            angle -= 2 * Math.PI;
+        }
+
+        while (angle < -Math.PI)
+        {
+            angle += 2 * Math.PI;
+        }
+
+        return angle;
+    }
 }
 
-public readonly struct Vector2
+public readonly struct Vector2 : IEquatable<Vector2>
 {
     public readonly float X = 0;
     public readonly float Y = 0;
@@ -45,8 +95,8 @@ public readonly struct Vector2
 
     public float LengthSquared { get => Dot(this); }
     public float Length { get => MathF.Sqrt(LengthSquared); }
-    public Vector2 Unit { get => (1 / Length) * this; }
-    public float Angle { get => MathF.Atan2(Y, X); }
+    public Vector2 Unit { get => Utils.SafeDivide(1, Length) * this; }
+    public float Angle { get => GetAngle(); }
 
     public Vector2(float x = 0, float y = 0, float z = 0)
     {
@@ -60,9 +110,29 @@ public readonly struct Vector2
         return X * other.X + Y * other.Y;
     }
 
+    public Vector2 Scale(float x, float y)
+    {
+        return new(X * x, Y * y, Z);
+    }
+
     public Vector2 Scale(Vector2 other)
     {
-        return new(X * other.X, Y * other.Y, Z);
+        return Scale(other.X, other.Y);
+    }
+
+    public bool IsOrigin(float epsilon = Utils.PreciseEpsilonF)
+    {
+        return Utils.IsFloatZero(X, epsilon) && Utils.IsFloatZero(Y, epsilon);
+    }
+
+    public float GetAngle(float epsilon = Utils.PreciseEpsilonF)
+    {
+        if (IsOrigin(epsilon))
+        {
+            return 0;
+        }
+
+        return MathF.Atan2(X, Y);
     }
 
     public Vector2 Rotate(float angle)
@@ -107,7 +177,7 @@ public readonly struct Vector2
         return new(-vector.X, -vector.Y, -vector.Z);
     }
 
-    public override bool Equals([NotNullWhen(true)] object? obj)
+    public override bool Equals(object? obj)
     {
         if (obj is Vector2 vector)
         {
@@ -119,12 +189,22 @@ public readonly struct Vector2
 
     public bool Equals(Vector2 other)
     {
-        return Utils.IsFloatClose(X, other.X) && Equals(Y, other.Y) && Utils.IsFloatClose(Z, other.Z);
+        return Utils.IsFloatClose(X, other.X) && Utils.IsFloatClose(Y, other.Y) && Utils.IsFloatClose(Z, other.Z);
     }
 
     public bool Equals(Vector2 other, float epsilon)
     {
         return Utils.IsFloatClose(X, other.X, epsilon) && Utils.IsFloatClose(Y, other.Y, epsilon) && Utils.IsFloatClose(Z, other.Z, epsilon);
+    }
+
+    public static bool operator==(Vector2 left, Vector2 right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(Vector2 left, Vector2 right)
+    {
+        return !left.Equals(right);
     }
 
     public override int GetHashCode()
