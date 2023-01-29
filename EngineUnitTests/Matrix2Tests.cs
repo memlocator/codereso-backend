@@ -316,4 +316,20 @@ public class Matrix2Tests
 
         testMatrix(trs);
     }
+
+    [Fact]
+    public void TestRowAndColumn()
+    {
+        float[] data = new float[9] { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
+
+        Matrix2 matrix = new(data);
+
+        Assert.Equal(matrix.Column(0), new Vector2(0, 1, 2));
+        Assert.Equal(matrix.Column(1), new Vector2(3, 4, 5));
+        Assert.Equal(matrix.Column(2), new Vector2(6, 7, 8));
+
+        Assert.Equal(matrix.Row(0), new Vector2(0, 3, 6));
+        Assert.Equal(matrix.Row(1), new Vector2(1, 4, 7));
+        Assert.Equal(matrix.Row(2), new Vector2(2, 5, 8));
+    }
 }
