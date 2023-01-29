@@ -14,15 +14,15 @@ public readonly struct Matrix2
     public Vector2 Translation { get => new(Data[6], Data[7], 1); }
     public Vector2 Scale2 { get => new(Right.Length, Up.Length); }
     public Vector2 Scale2Squared { get => new(Right.LengthSquared, Up.LengthSquared); }
-    public float Rotation { get => MathF.Atan2(Data[4], Data[3]); }
+    public float Rotation { get => GetRotation(); }
     public float Determinant  { get => Data[0] * Data[4] - Data[1] * Data[3]; }
     public Matrix2 Inverse { get => GetInverse(); }
 
     public Matrix2()
     {
         Data[0] = 1;
-        Data[3] = 1;
-        Data[6] = 1;
+        Data[4] = 1;
+        Data[8] = 1;
     }
     public Matrix2(float[] data)
     {
@@ -40,7 +40,7 @@ public readonly struct Matrix2
         Data[7] = position.Y;
         Data[8] = 1;
     }
-    public Matrix2(Vector2 position, Vector2 right, Vector2 up)
+    public Matrix2(Vector2 position, Vector2 right, Vector2 up, bool copyAllZs = false)
     {
         Data[0] = right.X;
         Data[1] = right.Y;
@@ -51,6 +51,13 @@ public readonly struct Matrix2
         Data[6] = position.X;
         Data[7] = position.Y;
         Data[8] = 1;
+
+        if (copyAllZs)
+        {
+            Data[2] = right.Z;
+            Data[5] = up.Z;
+            Data[8] = position.Z;
+        }
     }
     public Matrix2(Vector2 position, Vector2 scale)
     {
@@ -90,6 +97,22 @@ public readonly struct Matrix2
         Data[6] = position.X;
         Data[7] = position.Y;
         Data[8] = 1;
+    }
+
+    public bool IsIdentity(float epsilon = Utils.PreciseEpsilonF)
+    {
+        for (int x = 0; x < 3; ++x)
+        {
+            for (int y = 0; y < 3; ++y)
+            {
+                if (!Utils.IsFloatClose(x == y ? 1 : 0, this[x, y]))
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     public Matrix2 Transpose()
@@ -143,17 +166,26 @@ public readonly struct Matrix2
 
         Vector2 right = determinantInverse * Right;
         Vector2 up = determinantInverse * Up;
-        Vector2 translation = determinantInverse * Translation;
+        Vector2 translation = Translation;
 
-        right = new(-up.Y, right.Y);
-        up = new(up.X, -right.X);
+        float rightX = right.X;
+
+        right = new(up.Y, -right.Y);
+        up = new(-up.X, rightX);
 
         translation = new(
-            translation.X * right.X + translation.Y * up.X,
-            translation.X * right.Y + translation.Y * up.Y
+            right.X * translation.X + up.X * translation.Y,
+            right.Y * translation.X + up.Y * translation.Y
         );
 
         return new(-translation, right, up);
+    }
+
+    public float GetRotation()
+    {
+        Vector2 upUnit = Up.Unit;
+
+        return MathF.Atan2(upUnit.X, upUnit.Y);
     }
 
     public Vector2 Row(int row)
@@ -190,6 +222,18 @@ public readonly struct Matrix2
         return new(data);
     }
 
+    public static Matrix2 operator -(Matrix2 matrix)
+    {
+        float[] data = new float[9];
+
+        for (int i = 0; i < 9; ++i)
+        {
+            data[i] = -matrix.Data[i];
+        }
+
+        return new(data);
+    }
+
     public static Matrix2 operator +(Matrix2 matrix)
     {
         float[] data = new float[9];
@@ -213,11 +257,20 @@ public readonly struct Matrix2
 
             for (int j = 0; j < 3; ++j)
             {
-                data[i] += left[j, y] * right[x, j];
+                data[i] += left[x, j] * right[j, y];
             }
         }
 
         return new(data);
+    }
+
+    public static Vector2 operator *(Matrix2 left, Vector2 right)
+    {
+        return new(
+             left[0, 0] * right.X + left[0, 1] * right.Y + left[0, 2] * right.Z,
+             left[1, 0] * right.X + left[1, 1] * right.Y + left[1, 2] * right.Z,
+             left[2, 0] * right.X + left[2, 1] * right.Y + left[2, 2] * right.Z
+        );
     }
 
     public override bool Equals([NotNullWhen(true)] object? obj)
@@ -254,6 +307,16 @@ public readonly struct Matrix2
         }
 
         return true;
+    }
+
+    public static bool operator ==(Matrix2 left, Matrix2 right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(Matrix2 left, Matrix2 right)
+    {
+        return !left.Equals(right);
     }
 
     public override int GetHashCode()
