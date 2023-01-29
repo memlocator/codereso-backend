@@ -127,6 +127,17 @@ public readonly struct Vector2
         return Utils.IsFloatClose(X, other.X, epsilon) && Utils.IsFloatClose(Y, other.Y, epsilon) && Utils.IsFloatClose(Z, other.Z, epsilon);
     }
 
+    public override int GetHashCode()
+    {
+        int hash = 17;
+
+        hash = hash * 23 + X.GetHashCode();
+        hash = hash * 23 + Y.GetHashCode();
+        hash = hash * 23 + Z.GetHashCode();
+
+        return hash;
+    }
+
     public override string ToString()
     {
         if (Utils.IsFloatZero(Z))

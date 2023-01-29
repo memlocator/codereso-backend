@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -157,6 +156,16 @@ public readonly struct Matrix2
         return new(-translation, right, up);
     }
 
+    public Vector2 Row(int row)
+    {
+        return new(Data[row], Data[row + 3], Data[row + 6]);
+    }
+
+    public Vector2 Column(int column)
+    {
+        return new(Data[3 * column], Data[1 + 3 * column], Data[2 + 3 * column]);
+    }
+
     public static Matrix2 operator+(Matrix2 left, Matrix2 right)
     {
         float[] data = new float[9];
@@ -247,6 +256,18 @@ public readonly struct Matrix2
         return true;
     }
 
+    public override int GetHashCode()
+    {
+        int hash = 17;
+
+        for (int i = 0; i < 9; ++i)
+        {
+            hash = hash * 23 + Data[i].GetHashCode();
+        }
+
+        return hash;
+    }
+
     public override string ToString()
     {
         return $"r:[ {Data[0]} {Data[1]} {Data[2]} ] u:[ {Data[3]} {Data[4]} {Data[5]} ] t:[ {Data[6]} {Data[7]} {Data[8]} ]";
@@ -260,5 +281,30 @@ public readonly struct Matrix2
     public static int IndexOf(int x, int y)
     {
         return x + 3 * y;
+    }
+
+    public static Matrix2 NewTranslation(float x, float y)
+    {
+        return new(new Vector2(x, y));
+    }
+
+    public static Matrix2 NewTranslation(Vector2 translation)
+    {
+        return NewTranslation(translation.X, translation.Y);
+    }
+
+    public static Matrix2 NewRotation(float rotation)
+    {
+        return new(new(), rotation);
+    }
+
+    public static Matrix2 NewScale(float x, float y)
+    {
+        return new(new(), new Vector2(x, y));
+    }
+
+    public static Matrix2 NewScale(Vector2 scale)
+    {
+        return NewScale(scale.X, scale.Y);
     }
 }
