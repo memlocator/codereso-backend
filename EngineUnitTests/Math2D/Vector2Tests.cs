@@ -1,6 +1,6 @@
 using GameEngine.Math2D;
 
-namespace EngineUnitTests;
+namespace EngineUnitTests.Math2D;
 
 public class Vector2Tests
 {
@@ -15,7 +15,7 @@ public class Vector2Tests
         {
             bool isNearZero = x > -epsilon && x < epsilon;
 
-            Assert.True(isNearZero == Utils.IsFloatZero(x, epsilon));
+            Assert.Equal(isNearZero, Utils.IsFloatZero(x, epsilon));
         }
     }
 
@@ -57,7 +57,7 @@ public class Vector2Tests
             float yValue = x + y;
             bool isNearZero = x - yValue > -epsilon && x - yValue < epsilon;
 
-            Assert.True(isNearZero == Utils.IsFloatClose(x, yValue, epsilon));
+            Assert.Equal(isNearZero, Utils.IsFloatClose(x, yValue, epsilon));
         }
     }
 
@@ -68,7 +68,9 @@ public class Vector2Tests
     {
         Vector2 vector = new(x, y, z);
 
-        Assert.True(vector.X == x && vector.Y == y && vector.Z == z);
+        Assert.Equal(x, vector.X);
+        Assert.Equal(y, vector.Y);
+        Assert.Equal(z, vector.Z);
     }
 
     [Theory]
@@ -173,7 +175,9 @@ public class Vector2Tests
     {
         Vector2 vector = new(x, y, z);
 
-        Assert.True(vector[0] == x && vector[1] == y && vector[2] == z);
+        Assert.Equal(x, vector[0]);
+        Assert.Equal(y, vector[1]);
+        Assert.Equal(z, vector[2]);
     }
 
     [Theory]
@@ -202,7 +206,7 @@ public class Vector2Tests
         Vector2 vector2 = new(x2, y2, z2);
         Vector2 vectorUnit = vector.Unit;
 
-        Assert.True(vectorUnit == vector2);
+        Assert.Equal(vectorUnit, vector2);
     }
 
     [Theory]
@@ -241,7 +245,9 @@ public class Vector2Tests
         Vector2 vector = new(x, y, z);
         Vector2 scaled = vector.Scale(new Vector2(sx, sy, sz));
 
-        Assert.True(vector.X * sx == scaled.X && vector.Y * sy == scaled.Y && vector.Z == scaled.Z);
+        Assert.Equal(vector.X * sx, scaled.X);
+        Assert.Equal(vector.Y * sy, scaled.Y);
+        Assert.Equal(vector.Z, scaled.Z);
     }
 
     [Theory]
@@ -269,7 +275,7 @@ public class Vector2Tests
         Vector2 vector = new(x, y, z);
         float angle = vector.Angle;
         bool isOrigin = vector.IsOrigin();
-        
+
         for (float theta = 0; theta < 6 * MathF.PI; theta += 1 / 32.0f)
         {
             Vector2 rotated = vector.Rotate(theta);
@@ -307,10 +313,10 @@ public class Vector2Tests
         Vector2 vector = new(x, y, z);
         Vector2 scaled = 2 * vector;
         Vector2 scaled2 = vector * scalar;
-        Vector2 correct = new(scalar * x, scalar* y, scalar * z);
+        Vector2 correct = new(scalar * x, scalar * y, scalar * z);
 
-        Assert.Equal(scaled, correct);
-        Assert.Equal(scaled2, correct);
+        Assert.Equal(correct, scaled);
+        Assert.Equal(correct, scaled2);
     }
 
     [Theory]
@@ -341,8 +347,8 @@ public class Vector2Tests
         Vector2 changed2 = offset + vector;
         Vector2 correct = new(x + 1, y - 2, z + 3);
 
-        Assert.Equal(changed, correct);
-        Assert.Equal(changed2, correct);
+        Assert.Equal(correct, changed);
+        Assert.Equal(correct, changed2);
     }
 
     [Theory]
@@ -374,8 +380,8 @@ public class Vector2Tests
         Vector2 correct = new(x - 1, y + 2, z - 3);
         Vector2 correct2 = new(1 - x, -2 - y, 3 - z);
 
-        Assert.Equal(changed, correct);
-        Assert.Equal(changed2, correct2);
+        Assert.Equal(correct, changed);
+        Assert.Equal(correct2, changed2);
     }
 
     [Theory]

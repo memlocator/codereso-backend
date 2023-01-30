@@ -1,7 +1,7 @@
 ﻿using GameEngine.Math2D;
 using System.Security.Cryptography.X509Certificates;
 
-namespace EngineUnitTests;
+namespace EngineUnitTests.Math2D;
 
 public class Matrix2Tests
 {
@@ -18,8 +18,8 @@ public class Matrix2Tests
 
         for (int i = 0; i < 9; ++i)
         {
-            Assert.True(matrix1[i] == data[i]);
-            Assert.True(matrix2[i] == data[i]);
+            Assert.Equal(data[i], matrix1[i]);
+            Assert.Equal(data[i], matrix2[i]);
         }
 
         float[] data2 = new float[9] { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
@@ -49,7 +49,7 @@ public class Matrix2Tests
     [InlineData(2, 2, 8)]
     public void TestIndexOf(int x, int y, int i)
     {
-        Assert.Equal(Matrix2.IndexOf(x, y), i);
+        Assert.Equal(i, Matrix2.IndexOf(x, y));
     }
 
     [Fact]
@@ -76,11 +76,11 @@ public class Matrix2Tests
         {
             for (int y = 0; y < 3; ++y)
             {
-                Assert.True(x * y == product[x, y]);
-                Assert.True(x + y == sum[x, y]);
-                Assert.True(Matrix2.IndexOf(x, y) == index[x, y]);
-                Assert.True(columnIndex[x, y] == y);
-                Assert.True(rowIndex[x, y] == x);
+                Assert.Equal(x * y, product[x, y]);
+                Assert.Equal(x + y, sum[x, y]);
+                Assert.Equal(Matrix2.IndexOf(x, y), index[x, y]);
+                Assert.Equal(y, columnIndex[x, y]);
+                Assert.Equal(x, rowIndex[x, y]);
             }
         }
     }
@@ -99,7 +99,7 @@ public class Matrix2Tests
             Matrix2 matrix = new(data);
 
             Assert.False(matrix.IsIdentity());
-            Assert.False(matrix == new Matrix2());
+            Assert.NotEqual(matrix, new Matrix2());
 
             data[i] = old;
         }
@@ -177,23 +177,23 @@ public class Matrix2Tests
         Matrix2 scaleMatrix = Matrix2.NewScale(scale);
         Matrix2 rotationMatrix = Matrix2.NewRotation(angle);
 
-        Assert.Equal(translateMatrix.Right, right);
-        Assert.Equal(translateMatrix.Up, up);
-        Assert.Equal(translateMatrix.Translation, position);
+        Assert.Equal(right, translateMatrix.Right);
+        Assert.Equal(up, translateMatrix.Up);
+        Assert.Equal(position, translateMatrix.Translation);
         Assert.True(Utils.IsFloatClose(translateMatrix.Rotation, 0));
-        Assert.Equal(translateMatrix.Scale2, regularSize);
+        Assert.Equal(regularSize, translateMatrix.Scale2);
 
-        Assert.Equal(scaleMatrix.Right, scale.X * right);
-        Assert.Equal(scaleMatrix.Up, scale.Y * up);
-        Assert.Equal(scaleMatrix.Translation, translation);
+        Assert.Equal(scale.X * right, scaleMatrix.Right);
+        Assert.Equal(scale.Y * up, scaleMatrix.Up);
+        Assert.Equal(translation, scaleMatrix.Translation);
         Assert.True(Utils.IsFloatClose(scaleMatrix.Rotation, 0));
-        Assert.Equal(scaleMatrix.Scale2, scale);
+        Assert.Equal(scale, scaleMatrix.Scale2);
 
-        Assert.Equal(rotationMatrix.Right, rightRotated);
-        Assert.Equal(rotationMatrix.Up, upRotated);
-        Assert.Equal(rotationMatrix.Translation, translation);
+        Assert.Equal(rightRotated, rotationMatrix.Right);
+        Assert.Equal(upRotated, rotationMatrix.Up);
+        Assert.Equal(translation, rotationMatrix.Translation);
         Assert.True(Utils.IsFloatClose(rotationMatrix.Rotation, Utils.WrapAngle(angle)));
-        Assert.Equal(rotationMatrix.Scale2, regularSize);
+        Assert.Equal(regularSize, rotationMatrix.Scale2);
     }
 
     [Fact]
@@ -211,17 +211,17 @@ public class Matrix2Tests
         Matrix2 ts = translateMatrix * scaleMatrix;
         Matrix2 st = scaleMatrix * translateMatrix;
 
-        Assert.Equal(st.Translation, position.Scale(scale));
-        Assert.Equal(st.Scale2, scale);
-        Assert.Equal(ts.Translation, position);
-        Assert.Equal(ts.Scale2, scale);
+        Assert.Equal(position.Scale(scale), st.Translation);
+        Assert.Equal(scale, st.Scale2);
+        Assert.Equal(position, ts.Translation);
+        Assert.Equal(scale, ts.Scale2);
 
         Matrix2 tr = translateMatrix * rotationMatrix;
         Matrix2 rt = rotationMatrix * translateMatrix;
 
-        Assert.Equal(rt.Translation, position.Rotate(angle));
+        Assert.Equal(position.Rotate(angle), rt.Translation);
         Assert.True(Utils.IsFloatClose(rt.Rotation, wrappedAngle));
-        Assert.Equal(tr.Translation, position);
+        Assert.Equal(position, tr.Translation);
         Assert.True(Utils.IsFloatClose(tr.Rotation, wrappedAngle));
 
         Matrix2 sr = scaleMatrix * rotationMatrix;
@@ -229,17 +229,17 @@ public class Matrix2Tests
 
         Assert.Equal(rs.Translation, sr.Translation);
         Assert.True(Utils.IsFloatClose(rs.Rotation, wrappedAngle));
-        Assert.Equal(rs.Scale2, scale);
+        Assert.Equal(scale, rs.Scale2);
 
         Matrix2 trs = translateMatrix * rotationMatrix * scaleMatrix;
 
         Assert.Equal((rotationMatrix * scaleMatrix) * translateMatrix, rotationMatrix * (scaleMatrix * translateMatrix));
-        Assert.Equal(trs.Translation, position);
+        Assert.Equal(position, trs.Translation);
         Assert.True(Utils.IsFloatClose(trs.Rotation, wrappedAngle, Utils.LooseEpsilonF));
-        Assert.Equal(trs.Scale2, scale);
+        Assert.Equal(scale, trs.Scale2);
 
-        Assert.Equal(scaleMatrix * position, st.Translation);
-        Assert.Equal(rotationMatrix * position, rt.Translation);
+        Assert.Equal(st.Translation, scaleMatrix * position);
+        Assert.Equal(rt.Translation, rotationMatrix * position);
         Assert.Equal(position + position - new Vector2(0, 0, 1), translateMatrix * position);
     }
 
@@ -282,18 +282,18 @@ public class Matrix2Tests
 
         Assert.True(Utils.IsFloatClose(translateMatrix.Inverse.Determinant, 1));
         Assert.True(Utils.IsFloatClose(rotationMatrix.Inverse.Determinant, 1));
-        Assert.True(Utils.IsFloatClose(scaleMatrix.Inverse.Determinant, 1/20.0f));
+        Assert.True(Utils.IsFloatClose(scaleMatrix.Inverse.Determinant, 1 / 20.0f));
 
-        Assert.True(Utils.IsFloatClose(ts.Inverse.Determinant, 1/20.0f));
-        Assert.True(Utils.IsFloatClose(st.Inverse.Determinant, 1/20.0f));
+        Assert.True(Utils.IsFloatClose(ts.Inverse.Determinant, 1 / 20.0f));
+        Assert.True(Utils.IsFloatClose(st.Inverse.Determinant, 1 / 20.0f));
 
         Assert.True(Utils.IsFloatClose(tr.Inverse.Determinant, 1));
         Assert.True(Utils.IsFloatClose(rt.Inverse.Determinant, 1));
 
-        Assert.True(Utils.IsFloatClose(sr.Inverse.Determinant, 1/20.0f));
-        Assert.True(Utils.IsFloatClose(rs.Inverse.Determinant, 1/20.0f));
+        Assert.True(Utils.IsFloatClose(sr.Inverse.Determinant, 1 / 20.0f));
+        Assert.True(Utils.IsFloatClose(rs.Inverse.Determinant, 1 / 20.0f));
 
-        Assert.True(Utils.IsFloatClose(trs.Inverse.Determinant, 1/20.0f));
+        Assert.True(Utils.IsFloatClose(trs.Inverse.Determinant, 1 / 20.0f));
 
         Action<Matrix2> testMatrix = (matrix) =>
         {
@@ -324,12 +324,12 @@ public class Matrix2Tests
 
         Matrix2 matrix = new(data);
 
-        Assert.Equal(matrix.Column(0), new Vector2(0, 1, 2));
-        Assert.Equal(matrix.Column(1), new Vector2(3, 4, 5));
-        Assert.Equal(matrix.Column(2), new Vector2(6, 7, 8));
+        Assert.Equal(new Vector2(0, 1, 2), matrix.Column(0));
+        Assert.Equal(new Vector2(3, 4, 5), matrix.Column(1));
+        Assert.Equal(new Vector2(6, 7, 8), matrix.Column(2));
 
-        Assert.Equal(matrix.Row(0), new Vector2(0, 3, 6));
-        Assert.Equal(matrix.Row(1), new Vector2(1, 4, 7));
-        Assert.Equal(matrix.Row(2), new Vector2(2, 5, 8));
+        Assert.Equal(new Vector2(0, 3, 6), matrix.Row(0));
+        Assert.Equal(new Vector2(1, 4, 7), matrix.Row(1));
+        Assert.Equal(new Vector2(2, 5, 8), matrix.Row(2));
     }
 }

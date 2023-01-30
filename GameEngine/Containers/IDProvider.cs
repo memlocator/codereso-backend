@@ -60,8 +60,8 @@ public class IDProvider
 
                 Nodes[currentId] = Nodes[currentId] & NodeStatus.Used;
 
-                bool leftUsed = left >= Capacity || HasFlag(Nodes[left], NodeStatus.ChildrenUsed);
-                bool rightUsed = right >= Capacity || HasFlag(Nodes[right], NodeStatus.ChildrenUsed);
+                bool leftUsed = left >= Capacity || Nodes[left] == NodeStatus.AllUsed;
+                bool rightUsed = right >= Capacity || Nodes[right] == NodeStatus.AllUsed;
 
                 if (leftUsed && rightUsed)
                 {
@@ -93,6 +93,8 @@ public class IDProvider
         }
 
         Nodes[id] &= NodeStatus.ChildrenUsed;
+
+        --Count;
 
         if (id == 0)
         {
