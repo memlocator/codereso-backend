@@ -454,4 +454,21 @@ public class Vector2Tests
 
         Assert.Equal(correct, negated);
     }
+
+    [Fact]
+    public void TestNormals()
+    {
+        float angleIncrement = 1 / 32.0f;
+
+        for (float angle = 0; angle < 12 * MathF.PI; angle += angleIncrement)
+        {
+            Vector2 vector = new Vector2(0, 1).Rotate(angle);
+            Vector2 left = vector.LeftNormal;
+            Vector2 right = vector.RightNormal;
+
+            Assert.True(Utils.IsFloatZero(vector * left));
+            Assert.True(Utils.IsFloatZero(vector * right));
+            Assert.True(Utils.IsFloatClose(left * right, -1));
+        }
+    }
 }

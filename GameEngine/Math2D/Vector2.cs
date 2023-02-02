@@ -97,6 +97,8 @@ public readonly struct Vector2 : IEquatable<Vector2>
     public float Length { get => MathF.Sqrt(LengthSquared); }
     public Vector2 Unit { get => Utils.SafeDivide(1, Length) * this; }
     public float Angle { get => GetAngle(); }
+    public Vector2 LeftNormal { get => new Vector2(-Y, X); }
+    public Vector2 RightNormal { get => new Vector2(Y, -X); }
 
     public Vector2(float x = 0, float y = 0, float z = 0)
     {
