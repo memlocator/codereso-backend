@@ -12,7 +12,7 @@ public class AabbTests
         return min + (max - min) * (float)Generator.NextDouble();
     }
 
-    public Vector2 NextIn(float minX, float minY, float maxX, float maxY)
+    public Vector2 NextIn(float minX, float maxX, float minY, float maxY)
     {
         return new Vector2(Next(minX, maxX), Next(minY, maxY));
     }
