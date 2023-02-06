@@ -153,7 +153,7 @@ public class IDProvider
     {
         if (id < 0 || id >= Capacity)
         {
-            throw new IndexOutOfRangeException($"Freed ID {id} is out of bounds with capacity {Capacity}");
+            return false;
         }
 
         return HasFlag(Nodes[id], NodeStatus.Used);

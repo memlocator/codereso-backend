@@ -1,4 +1,6 @@
-﻿using System.ComponentModel;
+﻿using GameEngine.Containers;
+using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 
 namespace GameEngine.ECS;
 
@@ -19,9 +21,14 @@ public class Entity
     private List<Component> Components = new();
     private List<Entity> Children = new();
     public bool Enabled = true;
+    private static List<WeakReference<Entity>> ActiveEntities = new();
+    private static IDProvider EntityIDProvider = new();
+    public int EntityID { get; private set; }
 
     public Entity(string name, bool makeTransform = true)
     {
+        EntityID = EntityIDProvider.Allocate(ActiveEntities, new WeakReference<Entity>(this));
+
         Name = name;
 
         if (makeTransform)
@@ -32,10 +39,29 @@ public class Entity
 
     public Entity(bool makeTransform = true)
     {
+        EntityID = EntityIDProvider.Allocate(ActiveEntities, new WeakReference<Entity>(this));
+
         if (makeTransform)
         {
             AddTransform(new());
         }
+    }
+
+    ~Entity()
+    {
+        EntityIDProvider.Free(EntityID);
+    }
+
+    public static bool TryGetEntity(int id, [MaybeNullWhen(false), NotNullWhen(true)] out Entity? entity)
+    {
+        entity = null;
+
+        if (!EntityIDProvider.IsAllocated(id))
+        {
+            return false;
+        }
+
+        return ActiveEntities[id].TryGetTarget(out entity);
     }
 
     public ChildUpdateStatus AddComponent(Component component)
