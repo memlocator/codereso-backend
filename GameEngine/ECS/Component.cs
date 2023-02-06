@@ -1,6 +1,8 @@
-﻿using System;
+﻿using GameEngine.Containers;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,9 +15,14 @@ public class Component
     public Component? Parent { get; private set; }
     public List<Component> Children { get; private set; } = new();
     public bool Enabled = true;
+    private static List<WeakReference<Component>> ActiveComponents = new();
+    private static IDProvider ComponentIDProvider = new();
+    public int ComponentID { get; private set; }
 
     public ChildUpdateStatus AddComponent(Component component)
     {
+        ComponentID = ComponentIDProvider.Allocate(ActiveComponents, new WeakReference<Component>(this));
+
         if (IsDescendantOf(component))
             return ChildUpdateStatus.Failed;
 
@@ -37,6 +44,23 @@ public class Component
         Children.Add(component);
 
         return ChildUpdateStatus.Succeeded;
+    }
+
+    ~Component()
+    {
+        ComponentIDProvider.Free(ComponentID);
+    }
+
+    public static bool TryGetComponent(int id, [MaybeNullWhen(false), NotNullWhen(true)] out Component? component)
+    {
+        component = null;
+
+        if (!ComponentIDProvider.IsAllocated(id))
+        {
+            return false;
+        }
+
+        return ActiveComponents[id].TryGetTarget(out component);
     }
 
     public ChildUpdateStatus RemoveComponent(Component component)
