@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace GameEngine.Math2D;
@@ -87,6 +89,26 @@ public class Utils
     }
 }
 
+public class Vector2JsonConverter : JsonConverter<Vector2>
+{
+    public override Vector2 Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        return new Vector2();
+    }
+
+    public override void Write(Utf8JsonWriter writer, Vector2 value, JsonSerializerOptions options)
+    {
+        //writer.WriteStringValue($"{{x: {value.X}, y: {value.Y}}}");
+        writer.WriteStartObject();
+        writer.WritePropertyName("x");
+        writer.WriteNumberValue(value.X); // if this is a thing
+        writer.WritePropertyName("y");
+        writer.WriteNumberValue(value.Y); // if this is a thing
+        writer.WriteEndObject();
+    }
+}
+
+[JsonConverter(typeof(Vector2JsonConverter))]
 public readonly struct Vector2 : IEquatable<Vector2>
 {
     public readonly float X = 0;
