@@ -1,50 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 using System.Net.WebSockets;
 
 namespace GameEngine.Networking
 {
-    
-    internal class Connection
+
+    public class Connection
     {
-        List<bool> replicatedObjects;
+        public string clientIP;
+        public WebSocket wsSocket;
+
+        public Connection(string clientIP, WebSocket wsSocket)
+        {
+            this.clientIP = clientIP;
+            this.wsSocket = wsSocket;
+        }
+        public async void sendMessage(string jsonData)
+        {
+            ArraySegment<byte> buffer = new ArraySegment<byte>(new byte[4096]);
+            buffer = new ArraySegment<byte>(Encoding.UTF8.GetBytes(jsonData));
+            await wsSocket.SendAsync(buffer, WebSocketMessageType.Text, true, CancellationToken.None);
+        }
     }
 }
-
-//class Connection
-//{
-//    List<bool> objectsreplicated;
-
-//    bool isReplicated(int id)
-//    {
-//        return id >= 0 && id < objectsreplicated.Count && objectsreplicated[id];
-//    }
-
-//    void replicate(int id)
-//    {
-//        if (isReplicated(id)) return;
-
-//        // expand list if too small
-
-//        objectsreplicated[id] = true;
-//        replicate();
-//    }
-
-//    void update(int id)
-//    {
-//        if (!isReplicated(id)) return;
-
-//        updateobject();
-//    }
-
-//    void cleanup(int id)
-//    {
-//        if (!isReplicated(id)) return;
-
-//        cleanup();
-//    }
-
-//}
