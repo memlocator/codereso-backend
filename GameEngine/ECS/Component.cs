@@ -6,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace GameEngine.ECS;
 public class Component
@@ -15,13 +16,26 @@ public class Component
     public Component? Parent { get; private set; }
     public List<Component> Children { get; private set; } = new();
     public bool Enabled = true;
+    public bool Replicated = true;
+    public virtual bool ShouldBeReplicated { get => false; }
     private static List<WeakReference<Component>> ActiveComponents = new();
     private static IDProvider ComponentIDProvider = new();
     public int ComponentID { get; private set; }
 
-    public ChildUpdateStatus AddComponent(Component component)
+    public Component()
     {
         ComponentID = ComponentIDProvider.Allocate(ActiveComponents, new WeakReference<Component>(this));
+    }
+
+    public ChildUpdateStatus AddComponent(Component component)
+    {
+        if (component.ShouldBeReplicated)
+        {
+            // switch to better logging, aka print as warning
+            //throw new InvalidOperationException($"Attempt to add replicated component \"{component}\" as a child component");
+
+            return ChildUpdateStatus.Failed;
+        }
 
         if (IsDescendantOf(component))
             return ChildUpdateStatus.Failed;
@@ -190,6 +204,8 @@ public class Component
         QueuedAdds.Clear();
     }
 
+    public virtual void ParentObjectChanged(Entity? oldParent) { }
+
     public Component[] GetChildren()
     {
         if (!QueueRemovals)
@@ -245,7 +261,14 @@ public class Component
     /* Warning: only call from Entity */
     public void AttachToInternal(Entity? entity)
     {
+        Entity? oldParent = ParentObject;
+
         ParentObject = entity;
+
+        if (entity != oldParent)
+        {
+            ParentObjectChanged(oldParent);
+        }
 
         foreach (Component child in Children)
         {

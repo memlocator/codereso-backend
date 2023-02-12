@@ -10,6 +10,7 @@ public struct ColliderData
     public int BottomVertex { get; private set; } = -1;
     public Aabb BoundingBox { get; private set; }
     public BoundingCircle BoundingCircle { get; private set; }
+    public bool IsMesh { get; private set; } = false;
 
     public ColliderData() { }
     public ColliderData(List<Vector2> vertices, Matrix2? optionalTransform = null)
@@ -17,8 +18,24 @@ public struct ColliderData
         SetVertices(vertices, optionalTransform);
     }
 
+    public void SetCircle(Vector2 center, float radius, Matrix2? optionalTransform = null)
+    {
+        BoundingCircle = new BoundingCircle(center, radius);
+
+        if (optionalTransform is Matrix2 transform)
+        {
+            BoundingCircle = BoundingCircle.Transform(transform);
+        }
+
+        BoundingBox = new Aabb(center - new Vector2(radius, radius), center + new Vector2(radius, radius));
+
+        IsMesh = false;
+    }
+
     public void SetVertices(List<Vector2> vertices, Matrix2? optionalTransform = null)
     {
+        IsMesh = true;
+
         Vertices = new(vertices.Count);
         Normals = new(Vertices.Count);
 
@@ -57,6 +74,18 @@ public struct ColliderData
         }
 
         ComputeNormals();
+    }
+
+    public void TransformFrom(ref ColliderData other, Matrix2 transform)
+    {
+        if (other.IsMesh)
+        {
+            SetVertices(other.Vertices, transform);
+
+            return;
+        }
+
+        SetCircle(other.BoundingCircle.Center, other.BoundingCircle.Radius, transform);
     }
 
     public bool IsClockwise()
