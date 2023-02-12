@@ -21,6 +21,7 @@ public class Entity
     private List<Component> Components = new();
     private List<Entity> Children = new();
     public bool Enabled = true;
+    public bool Replicated = true;
     private static List<WeakReference<Entity>> ActiveEntities = new();
     private static IDProvider EntityIDProvider = new();
     public int EntityID { get; private set; }
