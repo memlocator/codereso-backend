@@ -1,11 +1,35 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using GameEngine;
+using GameEngine.ECS;
 using GameEngine.Math2D;
 using GameEngine.Networking;
 using System.Net.WebSockets;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using GameEngine.Utils;
+
+
+public class JsonTestJsonConverter : JsonConverter<JsonTest>
+{
+    public override JsonTest Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        return new JsonTest();
+    }
+
+    public override void Write(Utf8JsonWriter writer, JsonTest value, JsonSerializerOptions options)
+    {
+        writer.WriteStartObject();
+
+        JsonUtils.Write(writer, "entity", new Entity(), options, false);
+
+        writer.WriteEndObject();
+    }
+}
+
+
+[JsonConverter(typeof(JsonTestJsonConverter))]
+public class JsonTest { public JsonTest() { } }
 
 public class GameInit
 {
@@ -21,6 +45,8 @@ public class GameInit
         Matrix2 ba = b * a;
         Matrix2 cb = c * b;
         Matrix2 bc = b * c;
+
+        string response = JsonSerializer.Serialize(new JsonTest());
 
         NetworkService networkService = new GameEngine.Networking.NetworkService();
         // Send a response back to the client
