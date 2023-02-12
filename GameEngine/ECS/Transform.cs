@@ -2,11 +2,34 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 using System.Threading.Tasks;
 using GameEngine.Math2D;
+using GameEngine.Utils;
 
 namespace GameEngine.ECS;
 
+public class TransformJsonConverter : JsonConverter<Transform>
+{
+    public override Transform Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        return new Transform();
+    }
+
+    public override void Write(Utf8JsonWriter writer, Transform value, JsonSerializerOptions options)
+    {
+        writer.WriteStartObject();
+        value.WriteHeader(writer, options);
+        JsonUtils.Write(writer, "position", value.Position, options, true);
+        JsonUtils.Write(writer, "scale", value.Scale, options, true);
+        writer.WritePropertyName("rotation");
+        writer.WriteNumberValue(value.Rotation);
+        writer.WriteEndObject();
+    }
+}
+
+[JsonConverter(typeof(TransformJsonConverter))]
 public class Transform : Component
 {
     public override bool ShouldBeReplicated { get => true; }

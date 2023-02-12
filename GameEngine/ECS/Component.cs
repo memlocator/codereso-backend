@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Transactions;
 
@@ -205,6 +206,36 @@ public class Component
     }
 
     public virtual void ParentObjectChanged(Entity? oldParent) { }
+
+    public VisitType ForEachChild(bool recursive, Func<Component, VisitType> callback)
+    {
+        foreach (Component component in Children)
+        {
+            VisitType type = callback(component);
+
+            if (type == VisitType.Stop) return type;
+            if (type == VisitType.Skip) continue;
+
+            if (recursive)
+            {
+                type = component.ForEachChild(true, callback);
+
+                if (type == VisitType.Stop) return type;
+            }
+        }
+
+        return VisitType.Continue;
+    }
+
+    public void WriteHeader(Utf8JsonWriter writer, JsonSerializerOptions options)
+    {
+        writer.WritePropertyName("type");
+        writer.WriteStringValue(this.GetType().Name);
+        writer.WritePropertyName("id");
+        writer.WriteNumberValue(ComponentID);
+        writer.WritePropertyName("name");
+        writer.WriteStringValue(Name);
+    }
 
     public Component[] GetChildren()
     {

@@ -1,6 +1,9 @@
 ﻿using GameEngine.Containers;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
+using System.Text.Json;
+using GameEngine.Utils;
 
 namespace GameEngine.ECS;
 
@@ -11,6 +14,48 @@ public enum ChildUpdateStatus : byte
     Deferred
 }
 
+public enum VisitType : byte
+{
+    Continue,
+    Skip,
+    Stop
+}
+
+public class EntityJsonConverter : JsonConverter<Entity>
+{
+    public override Entity Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        return new Entity();
+    }
+
+    public override void Write(Utf8JsonWriter writer, Entity value, JsonSerializerOptions options)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("name");
+        writer.WriteStringValue(value.Name);
+        writer.WritePropertyName("id");
+        writer.WriteNumberValue(value.EntityID);
+        JsonUtils.Write(writer, "transform", value.Transform, options, true);
+        writer.WritePropertyName("components");
+        writer.WriteStartArray();
+
+        value.ForEachComponent(false, (component) =>
+        {
+            if (component == value.Transform) return VisitType.Skip;
+            if (!component.Replicated) return VisitType.Skip;
+            if (!component.ShouldBeReplicated) return VisitType.Skip;
+
+            JsonUtils.Write(writer, value.Transform, options);
+
+            return VisitType.Continue;
+        });
+
+        writer.WriteEndArray();
+        writer.WriteEndObject();
+    }
+}
+
+[JsonConverter(typeof(EntityJsonConverter))]
 public class Entity
 {
     public string Name = "Entity";
@@ -340,6 +385,26 @@ public class Entity
         }
 
         return children;
+    }
+
+    public VisitType ForEachComponent(bool recursive, Func<Component, VisitType> callback)
+    {
+        foreach (Component component in Components)
+        {
+            VisitType type = callback(component);
+
+            if (type == VisitType.Stop) return type;
+            if (type == VisitType.Skip) continue;
+
+            if (recursive)
+            {
+                type = component.ForEachChild(true, callback);
+
+                if (type == VisitType.Stop) return type;
+            }
+        }
+
+        return VisitType.Continue;
     }
 
     /* This method is slow and mostly used for unit testing. Prefer to use IsAncestorOf and IsDescendantOf instead */
