@@ -49,10 +49,19 @@ public class GameInit
         string response = JsonSerializer.Serialize(new JsonTest());
 
         NetworkService networkService = new GameEngine.Networking.NetworkService();
+        Entity ent = new Entity();
+        Entity ent1 = new Entity();
+        int x = NetworkService.magic;
+        int y = x + x;
+        while (true)
+        {
+            ent.Update(1f);
+            ent1.Update(1f);
+            networkService.Update();
+            Thread.Sleep(100);
+        }
+        Console.WriteLine(ent.ToString());
         // Send a response back to the client
-        EntityUpdate update = new EntityUpdate();
-        update.rotation = MathF.PI / 4;
-        Random rnd = new Random();
         //Console.WriteLine("Finished websocket");
         Console.ReadKey();
         //JsonSerializerOptions options = new()

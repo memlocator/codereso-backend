@@ -10,27 +10,31 @@ using System.Threading.Tasks;
 using System.Text.Json;
 using System.Net;
 using GameEngine.Math2D;
-
-
+using GameEngine.ECS;
 
 namespace GameEngine.Networking
 {
-    public class EntityUpdate
-    {
-        public Vector2 position { get; set; }
-        public Vector2 scale { get; set; }
-        public float rotation { get; set; }
-
-    };
-
-
     public class NetworkService
     {
         WebsocketServer server;
         List<Connection> connections = new List<Connection>();
+        public static int magic = 3;
         public NetworkService()
         {
             WebsocketServer server = new WebsocketServer(ref connections);
+        }
+
+        public void Update()
+        {
+            foreach (var connection in connections)
+            {
+                connection.Replicate(0);
+                connection.Replicate(1);
+
+                connection.UpdateReplicatedEntities();
+                Thread.Sleep(200);
+                connection.RemoveReplication(0);
+            }
         }
     }
 }
