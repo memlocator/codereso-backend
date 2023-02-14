@@ -55,8 +55,12 @@ public class GameInit
         int y = x + x;
         while (true)
         {
+            GameEngine.Networking.ClientEvents.MessageWriter msgWriter = new GameEngine.Networking.ClientEvents.MessageWriter();
+            msgWriter.Message = new GameEngine.Networking.ClientEvents.NewEntityEvent(ent);
+            string serializedMsg = JsonSerializer.Serialize(msgWriter);
+            Console.WriteLine(serializedMsg);
+
             ent.Update(1f);
-            ent1.Update(1f);
             networkService.Update();
             Thread.Sleep(100);
         }

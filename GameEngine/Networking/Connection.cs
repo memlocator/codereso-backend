@@ -3,6 +3,7 @@ using System.Net.WebSockets;
 using GameEngine.ECS;
 using System.Text.Json;
 using GameEngine.Networking.ClientEvents;
+using GameEngine.Utils;
 using System;
 
 namespace GameEngine.Networking
@@ -27,7 +28,10 @@ namespace GameEngine.Networking
                 throw new InvalidOperationException("Attempted to replicate entity with an id that did not return an entity object.");
 
             replicatedObjects[id] = true;
-            string serializedMsg = JsonSerializer.Serialize(new NewEntityEvent(replicationEntity));
+            MessageWriter msgWriter = new MessageWriter();
+            msgWriter.Message = new NewEntityEvent(replicationEntity);
+            string serializedMsg = JsonSerializer.Serialize(msgWriter);
+            Console.WriteLine(serializedMsg);
             SendMessage(serializedMsg);
             
         }

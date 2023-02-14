@@ -29,7 +29,6 @@ namespace GameEngine.Networking
             foreach (var connection in connections)
             {
                 connection.Replicate(0);
-                connection.Replicate(1);
 
                 connection.UpdateReplicatedEntities();
                 Thread.Sleep(200);
