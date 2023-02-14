@@ -1,4 +1,5 @@
 ﻿using GameEngine.ECS;
+using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -11,9 +12,9 @@ using System.Threading.Tasks;
 
 namespace GameEngine.Utils;
 
-public class JsonUtils
+public static class Utf8JsonWriterExtensions
 {
-    public static void Write<Type>(Utf8JsonWriter writer, string propertyName, Type value, JsonSerializerOptions options, bool allowNull)
+    public static void Write<Type>(this Utf8JsonWriter writer, string propertyName, Type value, JsonSerializerOptions options, bool allowNull)
     {
         if (value == null)
         {
@@ -35,8 +36,10 @@ public class JsonUtils
             }
         }
     }
-    public static void Write<Type>(Utf8JsonWriter writer, Type value, JsonSerializerOptions options)
+
+    public static void Write<Type>(this Utf8JsonWriter writer, Type value, JsonSerializerOptions options)
     {
+
         if (value == null) return;
 
         foreach (Attribute attribute in Attribute.GetCustomAttributes(typeof(Type)))
@@ -47,6 +50,34 @@ public class JsonUtils
 
                 converter?.Write(writer, value, options);
             }
+        }
+    }
+
+    public static void WriteValue<Type>(this Utf8JsonWriter writer, MemberInfo memberInfo, Type value, JsonSerializerOptions options) where Type : notnull
+    {
+        switch (memberInfo.MemberType)
+        {
+            case MemberTypes.Field:
+                Write(writer, memberInfo.Name, ((FieldInfo)memberInfo).GetValue(value), options, !memberInfo.IsNonNullableReferenceType());
+                break;
+            case MemberTypes.Property:
+                Write(writer, memberInfo.Name, ((PropertyInfo)memberInfo).GetValue(value), options, !memberInfo.IsNonNullableReferenceType());
+                break;
+            default:
+                throw new NotImplementedException();
+        }
+    }
+
+    public static void WriteMessage<Type>(this Utf8JsonWriter writer, Type value, JsonSerializerOptions options) where Type : notnull
+    {
+        foreach (MemberInfo member in value.GetType().GetMembers())
+        {
+            writer.WriteValue(member, value, options);
+        }
+
+        foreach (PropertyInfo member in value.GetType().GetProperties())
+        {
+            writer.WriteValue(member, value, options);
         }
     }
 }
