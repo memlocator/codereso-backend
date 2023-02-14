@@ -26,13 +26,30 @@ namespace GameEngine.Networking
 
         public void Update()
         {
-            foreach (var connection in connections)
+            foreach (var connection in connections.ToArray()) //To array because we need a deep copy, as the connections list could be modified by another thread.
             {
-                connection.Replicate(0);
+                //connection.Replicate(0);
 
                 connection.UpdateReplicatedEntities();
-                Thread.Sleep(200);
-                connection.RemoveReplication(0);
+                //Thread.Sleep(200);
+                //connection.RemoveReplication(0);
+            }
+        }
+
+        public void ReplicateAllEntitiesToAllConnections() //Debug purposes
+        {
+            foreach (var connection in connections.ToArray()) //To array because we need a deep copy, as the connections list could be modified by another thread.
+            {
+                int maxId = Entity.GetMaxEntityId();
+                for (int id = 0; id < maxId; id++)
+                {
+                    Entity ent;
+                    
+                    if (Entity.TryGetEntity(id, out ent))
+                    {
+                        connection.Replicate(id);
+                    }
+                }
             }
         }
     }

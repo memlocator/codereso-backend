@@ -12,7 +12,6 @@ using GameEngine.Utils;
 namespace GameEngine.Networking
 {
     
-
     namespace ClientEvents
     {
         [JsonConverter(typeof(MessageWriterJsonConverter))]
@@ -41,13 +40,12 @@ namespace GameEngine.Networking
             {
                 this.type = type;
             }
-            protected string type;
+            public string type;
         }
 
         public class NewEntityEvent : BaseEvent
         {
             public Entity? entity;
-            public int footGun = 5;
             public NewEntityEvent(Entity entity) : base("NewEntityEvent")
             {
                 this.entity = entity;
@@ -56,10 +54,19 @@ namespace GameEngine.Networking
 
         public class DestroyedEntityEvent : BaseEvent
         {
-            //public Entity? entity;
+            public Entity? entity;
             public DestroyedEntityEvent(Entity entity) : base("DestroyedEntityEvent")
             {
-                //this.entity = entity;
+                this.entity = entity;
+            }
+        }
+
+        public class EntityUpdateEvent : BaseEvent
+        {
+            public Entity? entity;
+            public EntityUpdateEvent(Entity entity) : base("EntityUpdateEvent")
+            {
+                this.entity = entity;
             }
         }
 

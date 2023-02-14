@@ -9,28 +9,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using GameEngine.Utils;
 
-
-public class JsonTestJsonConverter : JsonConverter<JsonTest>
-{
-    public override JsonTest Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-    {
-        return new JsonTest();
-    }
-
-    public override void Write(Utf8JsonWriter writer, JsonTest value, JsonSerializerOptions options)
-    {
-        writer.WriteStartObject();
-
-        writer.Write("entity", new Entity(), options, false);
-
-        writer.WriteEndObject();
-    }
-}
-
-
-[JsonConverter(typeof(JsonTestJsonConverter))]
-public class JsonTest { public JsonTest() { } }
-
 public class GameInit
 {
 
@@ -46,22 +24,20 @@ public class GameInit
         Matrix2 cb = c * b;
         Matrix2 bc = b * c;
 
-        string response = JsonSerializer.Serialize(new JsonTest());
-
         NetworkService networkService = new GameEngine.Networking.NetworkService();
         Entity ent = new Entity();
         Entity ent1 = new Entity();
-        int x = NetworkService.magic;
-        int y = x + x;
+        
         while (true)
         {
-            GameEngine.Networking.ClientEvents.MessageWriter msgWriter = new GameEngine.Networking.ClientEvents.MessageWriter();
-            msgWriter.Message = new GameEngine.Networking.ClientEvents.NewEntityEvent(ent);
-            string serializedMsg = JsonSerializer.Serialize(msgWriter);
-            Console.WriteLine(serializedMsg);
+            //GameEngine.Networking.ClientEvents.MessageWriter msgWriter = new GameEngine.Networking.ClientEvents.MessageWriter();
+            //msgWriter.Message = new GameEngine.Networking.ClientEvents.NewEntityEvent(ent);
+            //string serializedMsg = JsonSerializer.Serialize(msgWriter);
+            //Console.WriteLine(serializedMsg);
 
             ent.Update(1f);
             networkService.Update();
+            networkService.ReplicateAllEntitiesToAllConnections();
             Thread.Sleep(100);
         }
         Console.WriteLine(ent.ToString());

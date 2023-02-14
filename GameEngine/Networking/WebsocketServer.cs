@@ -40,7 +40,6 @@ namespace GameEngine.Networking
                 }
                 else
                 {
-                    //CloseConnection(wsListenerContext.Request.RemoteEndPoint.Address.ToString());
                     wsListenerContext.Response.Close();
                 }
             }

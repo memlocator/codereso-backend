@@ -17,8 +17,8 @@ namespace GameEngine.Networking
 
         public void Replicate(int id)
         {
-            if (id + 1 > replicatedObjects.Capacity - 1)
-                replicatedObjects.EnsureCapacity((replicatedObjects.Capacity + 1 )*2);
+            if (id + 1 > replicatedObjects.Count)
+                replicatedObjects.Resize((replicatedObjects.Count)*2);
 
             if (IsReplicated(id))
                 return;
@@ -31,9 +31,7 @@ namespace GameEngine.Networking
             MessageWriter msgWriter = new MessageWriter();
             msgWriter.Message = new NewEntityEvent(replicationEntity);
             string serializedMsg = JsonSerializer.Serialize(msgWriter);
-            Console.WriteLine(serializedMsg);
             SendMessage(serializedMsg);
-            
         }
 
         public void update(int id)
@@ -45,7 +43,9 @@ namespace GameEngine.Networking
             if (e == null)
                 throw new Exception("Entity is null");
 
-            string serializedMsg = JsonSerializer.Serialize(e);
+            MessageWriter msgWriter = new MessageWriter();
+            msgWriter.Message = new EntityUpdateEvent(e);
+            string serializedMsg = JsonSerializer.Serialize(msgWriter);
             SendMessage(serializedMsg);
         }
 
@@ -68,12 +68,24 @@ namespace GameEngine.Networking
             if (!IsReplicated(id)) return;
             //TODO: remove object from client
             replicatedObjects[id] = false;
+
+            Entity? replicationEntity = Entity.GetEntity(id);
+            if (replicationEntity == null)
+                throw new InvalidOperationException("Attempted to replicate entity with an id that did not return an entity object.");
+
+            MessageWriter msgWriter = new MessageWriter();
+            msgWriter.Message = new DestroyedEntityEvent(replicationEntity);
+            string serializedMsg = JsonSerializer.Serialize(msgWriter);
+            SendMessage(serializedMsg);
         }
         private async void SendMessage(string jsonData)
         {
-            ArraySegment<byte> buffer = new ArraySegment<byte>(new byte[4096]);
-            buffer = new ArraySegment<byte>(Encoding.UTF8.GetBytes(jsonData));
-            await wsSocket.SendAsync(buffer, WebSocketMessageType.Text, true, CancellationToken.None);
+            if (wsSocket.State == WebSocketState.Open)
+            {
+                ArraySegment<byte> buffer = new ArraySegment<byte>(new byte[4096]);
+                buffer = new ArraySegment<byte>(Encoding.UTF8.GetBytes(jsonData));
+                await wsSocket.SendAsync(buffer, WebSocketMessageType.Text, true, CancellationToken.None);
+            }
         }
 
         internal void UpdateReplicatedEntities()
@@ -81,7 +93,18 @@ namespace GameEngine.Networking
             for (int i = 0; i < replicatedObjects.Count; i++) 
             {
                 if (replicatedObjects[i])
-                    update(i);
+                {
+                    try
+                    {
+                        update(i);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Failed to network update for id {0}, {1}", i, e.Message);
+                    }
+                }
+                    
+                    
             }
         }
     }
