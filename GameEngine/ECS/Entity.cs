@@ -35,7 +35,7 @@ public class EntityJsonConverter : JsonConverter<Entity>
         writer.WriteStringValue(value.Name);
         writer.WritePropertyName("id");
         writer.WriteNumberValue(value.EntityID);
-        JsonUtils.Write(writer, "transform", value.Transform, options, true);
+        writer.Write("transform", value.Transform, options, true);
         writer.WritePropertyName("components");
         writer.WriteStartArray();
 
@@ -45,7 +45,7 @@ public class EntityJsonConverter : JsonConverter<Entity>
             if (!component.Replicated) return VisitType.Skip;
             if (!component.ShouldBeReplicated) return VisitType.Skip;
 
-            JsonUtils.Write(writer, value.Transform, options);
+            writer.Write(value.Transform, options);
 
             return VisitType.Continue;
         });

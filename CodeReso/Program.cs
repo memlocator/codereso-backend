@@ -21,7 +21,7 @@ public class JsonTestJsonConverter : JsonConverter<JsonTest>
     {
         writer.WriteStartObject();
 
-        JsonUtils.Write(writer, "entity", new Entity(), options, false);
+        writer.Write("entity", new Entity(), options, false);
 
         writer.WriteEndObject();
     }
