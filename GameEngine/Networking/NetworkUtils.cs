@@ -29,7 +29,9 @@ namespace GameEngine.Networking
 
             public override void Write(Utf8JsonWriter writer, MessageWriter value, JsonSerializerOptions options)
             {
+                writer.WriteStartObject();
                 writer.WriteMessage(value.Message, options);
+                writer.WriteEndObject();
           }
         }
 
@@ -44,10 +46,11 @@ namespace GameEngine.Networking
 
         public class NewEntityEvent : BaseEvent
         {
-            //public Entity? entity;
+            public Entity? entity;
+            public int footGun = 5;
             public NewEntityEvent(Entity entity) : base("NewEntityEvent")
             {
-                //this.entity = entity;
+                this.entity = entity;
             }
         }
 
