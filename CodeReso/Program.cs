@@ -38,10 +38,10 @@ public class GameInit
             Console.WriteLine("Before: " + ent.Transform.Matrix);
             ent.Update(1f);
             ent.Transform.Position += new Vector2(-0.005f, 0, 0);
-            ent.Transform.Rotation = ent.Transform.Rotation + 3f;
+            ent.Transform.Rotation = ent.Transform.Rotation + 0.01f;
             Console.WriteLine(ent.Transform.Rotation);
             Console.WriteLine("After: " + ent.Transform.Matrix);
-            ent1.Transform.Position += new Vector2(0.005f, 0, 0);
+            ent1.Transform.Position += new Vector2(0.005f, 0.0005f, 0);
             networkService.Update();
             networkService.ReplicateAllEntitiesToAllConnections();
             Thread.Sleep(100);

@@ -24,7 +24,7 @@ public class TransformJsonConverter : JsonConverter<Transform>
         writer.Write("position", value.Position, options, true);
         writer.Write("scale", value.Scale, options, true);
         writer.WritePropertyName("rotation");
-        writer.WriteNumberValue(value.Rotation * 180 / float.Pi);
+        writer.WriteNumberValue(-value.Rotation);
         writer.WriteEndObject();
     }
 }
