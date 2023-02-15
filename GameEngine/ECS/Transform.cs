@@ -34,7 +34,7 @@ public class Transform : Component
 {
     public override bool ShouldBeReplicated { get => true; }
 
-    private Matrix2 Data;
+    private Matrix2 Data = new();
     public Matrix2 Matrix
     {
         get => Data;
