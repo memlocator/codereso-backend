@@ -27,7 +27,7 @@ public class GameInit
         NetworkService networkService = new GameEngine.Networking.NetworkService();
         Entity ent = new Entity();
         Entity ent1 = new Entity();
-        
+        Console.WriteLine("init: " + ent.Transform.Matrix);
         while (true)
         {
             //GameEngine.Networking.ClientEvents.MessageWriter msgWriter = new GameEngine.Networking.ClientEvents.MessageWriter();
@@ -35,7 +35,13 @@ public class GameInit
             //string serializedMsg = JsonSerializer.Serialize(msgWriter);
             //Console.WriteLine(serializedMsg);
 
+            Console.WriteLine("Before: " + ent.Transform.Matrix);
             ent.Update(1f);
+            ent.Transform.Position += new Vector2(-0.005f, 0, 0);
+            ent.Transform.Rotation = ent.Transform.Rotation + 3f;
+            Console.WriteLine(ent.Transform.Rotation);
+            Console.WriteLine("After: " + ent.Transform.Matrix);
+            ent1.Transform.Position += new Vector2(0.005f, 0, 0);
             networkService.Update();
             networkService.ReplicateAllEntitiesToAllConnections();
             Thread.Sleep(100);

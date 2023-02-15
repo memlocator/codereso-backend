@@ -61,10 +61,10 @@ namespace GameEngine.Networking
             }
         }
 
-        public class EntityUpdateEvent : BaseEvent
+        public class UpdateEntityEvent : BaseEvent
         {
             public Entity? entity;
-            public EntityUpdateEvent(Entity entity) : base("EntityUpdateEvent")
+            public UpdateEntityEvent(Entity entity) : base("UpdateEntityEvent")
             {
                 this.entity = entity;
             }

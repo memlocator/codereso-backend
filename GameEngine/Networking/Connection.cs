@@ -44,7 +44,7 @@ namespace GameEngine.Networking
                 throw new Exception("Entity is null");
 
             MessageWriter msgWriter = new MessageWriter();
-            msgWriter.Message = new EntityUpdateEvent(e);
+            msgWriter.Message = new UpdateEntityEvent(e);
             string serializedMsg = JsonSerializer.Serialize(msgWriter);
             SendMessage(serializedMsg);
         }
