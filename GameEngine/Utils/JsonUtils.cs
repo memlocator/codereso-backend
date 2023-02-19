@@ -3,6 +3,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Formats.Asn1;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -14,6 +15,12 @@ namespace GameEngine.Utils;
 
 public static class Utf8JsonWriterExtensions
 {
+    public static void WriteObject(this Utf8JsonWriter writer, string propertyName, System.Object value, JsonSerializerOptions options)
+    {
+        writer.WritePropertyName(propertyName);
+        writer.WriteRawValue(JsonSerializer.Serialize(value));
+    }
+    
     public static void Write<Type>(this Utf8JsonWriter writer, string propertyName, Type value, JsonSerializerOptions options, bool allowNull)
     {
         if (value == null)
@@ -21,6 +28,13 @@ public static class Utf8JsonWriterExtensions
             if (!allowNull) return;
 
             writer.WriteNull(propertyName);
+
+            return;
+        }
+
+        if (typeof(Type) == typeof(System.Object))
+        {
+            writer.WriteObject(propertyName, value, options);
 
             return;
         }
@@ -70,7 +84,7 @@ public static class Utf8JsonWriterExtensions
 
     public static void WriteMessage<Type>(this Utf8JsonWriter writer, Type value, JsonSerializerOptions options) where Type : notnull
     {
-        foreach (MemberInfo member in value.GetType().GetMembers())
+        foreach (FieldInfo member in value.GetType().GetFields())
         {
             writer.WriteValue(member, value, options);
         }

@@ -10,27 +10,47 @@ using System.Threading.Tasks;
 using System.Text.Json;
 using System.Net;
 using GameEngine.Math2D;
-
-
+using GameEngine.ECS;
 
 namespace GameEngine.Networking
 {
-    public class EntityUpdate
-    {
-        public Vector2 position { get; set; }
-        public Vector2 scale { get; set; }
-        public float rotation { get; set; }
-
-    };
-
-
     public class NetworkService
     {
         WebsocketServer server;
         List<Connection> connections = new List<Connection>();
+        public static int magic = 3;
         public NetworkService()
         {
             WebsocketServer server = new WebsocketServer(ref connections);
+        }
+
+        public void Update()
+        {
+            foreach (var connection in connections.ToArray()) //To array because we need a deep copy, as the connections list could be modified by another thread.
+            {
+                //connection.Replicate(0);
+
+                connection.UpdateReplicatedEntities();
+                //Thread.Sleep(200);
+                //connection.RemoveReplication(0);
+            }
+        }
+
+        public void ReplicateAllEntitiesToAllConnections() //Debug purposes
+        {
+            foreach (var connection in connections.ToArray()) //To array because we need a deep copy, as the connections list could be modified by another thread.
+            {
+                int maxId = Entity.GetMaxEntityId();
+                for (int id = 0; id < maxId; id++)
+                {
+                    Entity ent;
+                    
+                    if (Entity.TryGetEntity(id, out ent))
+                    {
+                        connection.Replicate(id);
+                    }
+                }
+            }
         }
     }
 }

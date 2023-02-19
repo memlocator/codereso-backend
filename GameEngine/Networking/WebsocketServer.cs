@@ -40,7 +40,6 @@ namespace GameEngine.Networking
                 }
                 else
                 {
-                    //CloseConnection(wsListenerContext.Request.RemoteEndPoint.Address.ToString());
                     wsListenerContext.Response.Close();
                 }
             }
@@ -87,7 +86,6 @@ namespace GameEngine.Networking
             try
             {
                 ArraySegment<byte> recBuff = new ArraySegment<byte>(new byte[4096]);//new byte[4096];
-                EntityUpdate update = new EntityUpdate();
                 if (!IsAlreadyConnected(context.Request.RemoteEndPoint.Address.ToString()))
                     CreateConnection(context.Request.RemoteEndPoint.Address.ToString(), wsSocket);
 

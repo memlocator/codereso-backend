@@ -1,4 +1,4 @@
-﻿using GameEngine.Containers;
+using GameEngine.Containers;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
@@ -70,6 +70,17 @@ public class Entity
     private static List<WeakReference<Entity>> ActiveEntities = new();
     private static IDProvider EntityIDProvider = new();
     public int EntityID { get; private set; }
+
+    public static int GetMaxEntityId()
+    {
+        return ActiveEntities.Count;
+    }
+    public static Entity? GetEntity(int id)
+    {
+        Entity? target;
+        TryGetEntity(id, out target);
+        return target;
+    }
 
     public Entity(string name, bool makeTransform = true)
     {

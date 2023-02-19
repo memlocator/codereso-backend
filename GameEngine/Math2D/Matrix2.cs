@@ -9,20 +9,18 @@ using static System.Formats.Asn1.AsnWriter;
 namespace GameEngine.Math2D;
 public readonly struct Matrix2
 {
-    public Vector2 Right { get; }
-    public Vector2 Up { get; }
-    public Vector2 Translation { get; }
+    public Vector2 Right { get; } = new (1, 0, 0);
+    public Vector2 Up { get; } = new(0, 1, 0);
+    public Vector2 Translation { get; } = new(0, 0, 1);
     public Vector2 Scale2 { get => new(Right.Length, Up.Length); }
     public Vector2 Scale2Squared { get => new(Right.LengthSquared, Up.LengthSquared); }
     public float Rotation { get => GetRotation(); }
-    public float Determinant  { get => this[0] * this[4] - this[1] * this[3]; }
+    public float Determinant { get => this[0] * this[4] - this[1] * this[3]; }
     public Matrix2 Inverse { get => GetInverse(); }
 
     public Matrix2()
     {
-        Right = new(1, 0, 0);
-        Up = new(0, 1, 0);
-        Translation = new(0, 0, 1);
+        
     }
     public Matrix2(float[] data)
     {

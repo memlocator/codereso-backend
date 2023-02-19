@@ -9,28 +9,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using GameEngine.Utils;
 
-
-public class JsonTestJsonConverter : JsonConverter<JsonTest>
-{
-    public override JsonTest Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-    {
-        return new JsonTest();
-    }
-
-    public override void Write(Utf8JsonWriter writer, JsonTest value, JsonSerializerOptions options)
-    {
-        writer.WriteStartObject();
-
-        writer.Write("entity", new Entity(), options, false);
-
-        writer.WriteEndObject();
-    }
-}
-
-
-[JsonConverter(typeof(JsonTestJsonConverter))]
-public class JsonTest { public JsonTest() { } }
-
 public class GameInit
 {
 
@@ -46,13 +24,30 @@ public class GameInit
         Matrix2 cb = c * b;
         Matrix2 bc = b * c;
 
-        string response = JsonSerializer.Serialize(new JsonTest());
-
         NetworkService networkService = new GameEngine.Networking.NetworkService();
+        Entity ent = new Entity();
+        Entity ent1 = new Entity();
+        Console.WriteLine("init: " + ent.Transform.Matrix);
+        while (true)
+        {
+            //GameEngine.Networking.ClientEvents.MessageWriter msgWriter = new GameEngine.Networking.ClientEvents.MessageWriter();
+            //msgWriter.Message = new GameEngine.Networking.ClientEvents.NewEntityEvent(ent);
+            //string serializedMsg = JsonSerializer.Serialize(msgWriter);
+            //Console.WriteLine(serializedMsg);
+
+            Console.WriteLine("Before: " + ent.Transform.Matrix);
+            ent.Update(1f);
+            ent.Transform.Position += new Vector2(-0.005f, 0, 0);
+            ent.Transform.Rotation = ent.Transform.Rotation + 0.01f;
+            Console.WriteLine(ent.Transform.Rotation);
+            Console.WriteLine("After: " + ent.Transform.Matrix);
+            ent1.Transform.Position += new Vector2(0.005f, 0.0005f, 0);
+            networkService.Update();
+            networkService.ReplicateAllEntitiesToAllConnections();
+            Thread.Sleep(100);
+        }
+        Console.WriteLine(ent.ToString());
         // Send a response back to the client
-        EntityUpdate update = new EntityUpdate();
-        update.rotation = MathF.PI / 4;
-        Random rnd = new Random();
         //Console.WriteLine("Finished websocket");
         Console.ReadKey();
         //JsonSerializerOptions options = new()
